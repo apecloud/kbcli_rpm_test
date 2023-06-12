@@ -32,9 +32,13 @@ jobs:
             libdevmapper-dev
           sudo apt-get install -y rpm build-essential
           sudo apt-get install -y createrepo-c
+          pwd
           cd ${{ matrix.os }}
+          pwd
+          ls
           curl -O -L https://github.com/apecloud/kbcli/releases/download/${{ env.TAG_NAME }}/${{ env.CLI_NAME }}-${{ matrix.os }}-${{ env.TAG_NAME }}.tar.gz
           echo "CLI_FILENAME=${{ env.CLI_NAME }}-${{ matrix.os }}-${{ env.TAG_NAME }}" >> $GITHUB_ENV
+          ls
 
       - name: make RPM package
         if: matrix.os == 'linux-amd64' || matrix.os == 'linux-arm64'
