@@ -63,7 +63,6 @@ jobs:
           git commit -m "update rpm repo"
           git pull
           git config pull.rebase false
-          git merge --continue
 
       - name: Push kbcli yum repo
         uses: ad-m/github-push-action@master
