@@ -32,10 +32,7 @@ jobs:
             libdevmapper-dev
           sudo apt-get install -y rpm build-essential
           sudo apt-get install -y createrepo-c
-          pwd
           cd ${{ matrix.os }}
-          pwd
-          ls
           curl -O -L https://github.com/apecloud/kbcli/releases/download/${{ env.TAG_NAME }}/${{ env.CLI_NAME }}-${{ matrix.os }}-${{ env.TAG_NAME }}.tar.gz
           echo "CLI_FILENAME=${{ env.CLI_NAME }}-${{ matrix.os }}-${{ env.TAG_NAME }}" >> $GITHUB_ENV
           ls
@@ -43,8 +40,7 @@ jobs:
       - name: make RPM package
         if: matrix.os == 'linux-amd64' || matrix.os == 'linux-arm64'
         run: |
-          pwd
-          ls
+          cd ${{ matrix.os }}
           cp ${{ env.CLI_FILENAME }}.tar.gz rpmbuild/SOURCES/
           cp ${{ github.workspace }}/.github/utils/kbcli.spec rpmbuild/SPECS/
           sed -i 's/^Source0:.*/Source0: ${{ env.CLI_FILENAME }}.tar.gz/' rpmbuild/SPECS/kbcli.spec
@@ -59,6 +55,7 @@ jobs:
       - name: build RPM repo
         if: matrix.os == 'linux-amd64' || matrix.os == 'linux-arm64'
         run: |
+          cd ${{ matrix.os }}
           cp ./rpmbuild/RPMS/${{ matrix.os == 'linux-amd64' && 'x86_64' || 'aarch64' }}/${{ env.CLI_NAME }}-${{ env.TAG_NAME }}-1.${{ matrix.os == 'linux-amd64' && 'x86_64' || 'aarch64' }}.rpm ./
           createrepo_c -pdo ./ ./
           createrepo_c --update ./
