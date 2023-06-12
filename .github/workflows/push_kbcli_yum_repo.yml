@@ -33,12 +33,12 @@ jobs:
             libdevmapper-dev
           sudo apt-get install -y rpm build-essential
           sudo apt-get install -y createrepo-c
+          curl -O -L https://github.com/apecloud/kbcli/releases/download/${{ env.TAG_NAME }}/${{ env.CLI_NAME }}-${{ matrix.os }}-${{ env.TAG_NAME }}.tar.gz
+          echo "CLI_FILENAME=${{ env.CLI_NAME }}-${{ matrix.os }}-${{ env.TAG_NAME }}" >> $GITHUB_ENV
 
       - name: make RPM package
         if: matrix.os == 'linux-amd64' || matrix.os == 'linux-arm64'
         run: |
-          curl -O -L https://github.com/apecloud/kbcli/releases/download/${{ env.TAG_NAME }}/${{ env.CLI_NAME }}-${{ matrix.os }}-${{ env.TAG_NAME }}.tar.gz
-          echo "CLI_FILENAME=${{ env.CLI_NAME }}-${{ matrix.os }}-${{ env.TAG_NAME }}" >> $GITHUB_ENV
           cp ${{ env.CLI_FILENAME }}.tar.gz rpmbuild/SOURCES/
           cp ${{ github.workspace }}/.github/utils/kbcli.spec rpmbuild/SPECS/
           sed -i 's/^Source0:.*/Source0: ${{ env.CLI_FILENAME }}.tar.gz/' rpmbuild/SPECS/kbcli.spec
