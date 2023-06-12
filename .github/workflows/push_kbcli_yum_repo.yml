@@ -40,6 +40,8 @@ jobs:
         if: matrix.os == 'linux-amd64' || matrix.os == 'linux-arm64'
         run: |
           curl -O -L https://github.com/apecloud/kbcli/releases/download/${{ env.TAG_NAME }}/${{ env.CLI_NAME }}-${{ matrix.os }}-${{ env.TAG_NAME }}.tar.gz
+          pwd
+          ls
           cp ${{ env.CLI_FILENAME }}.tar.gz rpmbuild/SOURCES/
           cp ${{ github.workspace }}/.github/utils/kbcli.spec rpmbuild/SPECS/
           sed -i 's/^Source0:.*/Source0: ${{ env.CLI_FILENAME }}.tar.gz/' rpmbuild/SPECS/kbcli.spec
