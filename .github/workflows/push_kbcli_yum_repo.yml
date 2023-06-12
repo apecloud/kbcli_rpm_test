@@ -61,7 +61,7 @@ jobs:
           git config --local user.email "$GITHUB_ACTOR@users.noreply.github.com"
           git add .
           git commit -m "update rpm repo"
-          git reset --hard origin/${{ github.ref }}
+          git reset --hard
 
       - name: Push kbcli yum repo
         uses: ad-m/github-push-action@master
