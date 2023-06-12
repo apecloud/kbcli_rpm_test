@@ -46,7 +46,7 @@ jobs:
           sed -i 's/^Source0:.*/Source0: ${{ env.CLI_FILENAME }}.tar.gz/' rpmbuild/SPECS/kbcli.spec
           sed -i 's/^Version:.*/Version: ${{ env.TAG_NAME }}/' rpmbuild/SPECS/kbcli.spec
           sed -i 's/^%setup.*/%setup -q -n ${{ matrix.os }}/' rpmbuild/SPECS/kbcli.spec
-          cp -r rpm rpmbuild/SOURCES/
+          cp -r rpmbuild /home/runner/
           rpmbuild --target ${{ matrix.os == 'linux-amd64' && 'x86_64' || 'aarch64' }} -ba ${{ matrix.os }}/rpmbuild/SPECS/kbcli.spec
 
       - name: build RPM repo
