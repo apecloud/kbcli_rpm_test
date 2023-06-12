@@ -14,6 +14,7 @@ env:
   GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
   CLI_NAME: "kbcli"
   TAG_NAME: "v0.5.1"
+  REPOSITORY: "kbcli_rpm_test"
 
 
 jobs:
@@ -33,6 +34,7 @@ jobs:
             libdevmapper-dev
           sudo apt-get install -y rpm build-essential
           sudo apt-get install -y createrepo-c
+          cd ${{ matrix.os }}
           curl -O -L https://github.com/apecloud/kbcli/releases/download/${{ env.TAG_NAME }}/${{ env.CLI_NAME }}-${{ matrix.os }}-${{ env.TAG_NAME }}.tar.gz
           echo "CLI_FILENAME=${{ env.CLI_NAME }}-${{ matrix.os }}-${{ env.TAG_NAME }}" >> $GITHUB_ENV
 
@@ -44,17 +46,16 @@ jobs:
           sed -i 's/^Source0:.*/Source0: ${{ env.CLI_FILENAME }}.tar.gz/' rpmbuild/SPECS/kbcli.spec
           sed -i 's/^Version:.*/Version: ${{ env.TAG_NAME }}/' rpmbuild/SPECS/kbcli.spec
           sed -i 's/^%setup.*/%setup -q -n ${{ matrix.os }}/' rpmbuild/SPECS/kbcli.spec
-          cp -r rpmbuild /home/runner/
           if [ "${{ matrix.os }}" = "linux-amd64" ]; then
-            rpmbuild --target x86_64 -ba /home/runner/rpmbuild/SPECS/kbcli.spec
+            rpmbuild --target x86_64 -ba /home/runner/${{ REPOSITORY }}/${{ matrix.os }}/rpmbuild/SPECS/kbcli.spec
           elif [ "${{ matrix.os }}" = "linux-arm64" ]; then
-            rpmbuild --target aarch64 -ba /home/runner/rpmbuild/SPECS/kbcli.spec
+            rpmbuild --target aarch64 -ba /home/runner/${{ REPOSITORY }}/${{ matrix.os }}/rpmbuild/SPECS/kbcli.spec
           fi
 
       - name: build RPM repo
         if: matrix.os == 'linux-amd64' || matrix.os == 'linux-arm64'
         run: |
-          cp /home/runner/rpmbuild/RPMS/${{ matrix.os == 'linux-amd64' && 'x86_64' || 'aarch64' }}/${{ env.CLI_NAME }}-${{ env.TAG_NAME }}-1.${{ matrix.os == 'linux-amd64' && 'x86_64' || 'aarch64' }}.rpm ./
+          cp ./rpmbuild/RPMS/${{ matrix.os == 'linux-amd64' && 'x86_64' || 'aarch64' }}/${{ env.CLI_NAME }}-${{ env.TAG_NAME }}-1.${{ matrix.os == 'linux-amd64' && 'x86_64' || 'aarch64' }}.rpm ./
           createrepo_c -pdo ./ ./
           createrepo_c --update ./
 
@@ -68,3 +69,4 @@ jobs:
         with:
           github_token: ${{ env.GITHUB_TOKEN }}
           branch: ${{ github.ref }}
+          force: true
