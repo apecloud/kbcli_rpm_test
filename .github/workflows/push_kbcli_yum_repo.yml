@@ -13,7 +13,7 @@ on:
 env:
   GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
   CLI_NAME: "kbcli"
-  TAG_NAME: "v0.6.0-alpha.8"
+  TAG_NAME: "v0.5.1"
 #  TAG_NAME: ${{ github.event.inputs.VERSION }}
   CLI_FILENAME: "kbcli-linux-amd64-v0.6.0-alpha.8"
 
