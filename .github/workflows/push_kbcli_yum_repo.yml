@@ -1,7 +1,6 @@
 name: RELEASE-YUM-KBCLI-TAG
 
 on:
-  push:
   workflow_dispatch:
     inputs:
       VERSION:
@@ -13,7 +12,7 @@ on:
 env:
   GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
   CLI_NAME: "kbcli"
-  TAG_NAME: "v0.5.2"
+  TAG_NAME: ${{ inputs.VERSION }}
 
 jobs:
   release-yum-kbcli-amd:
@@ -37,12 +36,17 @@ jobs:
           cd ${{ matrix.os }}
           curl -O -L https://github.com/apecloud/kbcli/releases/download/${{ env.TAG_NAME }}/${{ env.CLI_NAME }}-${{ matrix.os }}-${{ env.TAG_NAME }}.tar.gz
           echo "CLI_FILENAME=${{ env.CLI_NAME }}-${{ matrix.os }}-${{ env.TAG_NAME }}" >> $GITHUB_ENV
-          ls
 
       - name: make RPM package
         if: matrix.os == 'linux-amd64' || matrix.os == 'linux-arm64'
         run: |
           cd ${{ matrix.os }}
+          mkdir -p rpmbuild
+          mkdir -p rpmbuild/SOURCES
+          mkdir -p rpmbuild/SPECS
+          mkdir -p rpmbuild/BUILD
+          mkdir -p rpmbuild/RPMS
+          mkdir -p rpmbuild/SRPMS
           mv ${{ env.CLI_FILENAME }}.tar.gz rpmbuild/SOURCES/
           cp ${{ github.workspace }}/.github/utils/kbcli.spec rpmbuild/SPECS/
           mv rpmbuild/SPECS/kbcli.spec rpmbuild/SPECS/kbcli-${{ env.TAG_NAME }}.spec
@@ -53,7 +57,6 @@ jobs:
           rpmbuild --target ${{ matrix.os == 'linux-amd64' && 'x86_64' || 'aarch64' }} -ba /home/runner/rpmbuild/SPECS/kbcli-${{ env.TAG_NAME }}.spec
 
       - name: build RPM repo
-        if: matrix.os == 'linux-amd64' || matrix.os == 'linux-arm64'
         run: |
           cd ${{ matrix.os }}
           mv /home/runner/rpmbuild/RPMS/${{ matrix.os == 'linux-amd64' && 'x86_64' || 'aarch64' }}/${{ env.CLI_NAME }}-${{ env.TAG_NAME }}-1.${{ matrix.os == 'linux-amd64' && 'x86_64' || 'aarch64' }}.rpm ./
@@ -109,7 +112,6 @@ jobs:
           rpmbuild --target ${{ matrix.os == 'linux-amd64' && 'x86_64' || 'aarch64' }} -ba /home/runner/rpmbuild/SPECS/kbcli-${{ env.TAG_NAME }}.spec
 
       - name: build RPM repo
-        if: matrix.os == 'linux-amd64' || matrix.os == 'linux-arm64'
         run: |
           cd ${{ matrix.os }}
           mv /home/runner/rpmbuild/RPMS/${{ matrix.os == 'linux-amd64' && 'x86_64' || 'aarch64' }}/${{ env.CLI_NAME }}-${{ env.TAG_NAME }}-1.${{ matrix.os == 'linux-amd64' && 'x86_64' || 'aarch64' }}.rpm ./
