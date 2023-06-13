@@ -102,7 +102,7 @@ make_rpm_repo() {
 
     # Create or update rpm repo
     if [ ! -d "repodata" ]; then
-        createrepo -pdo ./ ./
+        createrepo_c -pdo ./ ./
     else
         createrepo_c --update ./
     fi
