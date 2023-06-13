@@ -62,13 +62,10 @@ jobs:
           git config --local user.email "$GITHUB_ACTOR@users.noreply.github.com"
           git add .
           git commit -m "update rpm repo"
-          git pull -f
-          git config pull.rebase false
-          git pull -f
+          git pull
 
       - name: Push kbcli yum repo
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ env.GITHUB_TOKEN }}
           branch: ${{ github.ref }}
-          force: true
