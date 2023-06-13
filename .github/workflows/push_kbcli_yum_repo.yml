@@ -24,6 +24,8 @@ jobs:
         os: [linux-amd64]
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: "main"
       - name: install lib
         run: |
           sudo apt-get update
@@ -67,7 +69,7 @@ jobs:
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ env.GITHUB_TOKEN }}
-          branch: ${{ github.ref }}
+          branch: "main"
           force: true
 
   release-yum-kbcli-arm:
@@ -79,6 +81,8 @@ jobs:
         os: [linux-arm64]
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: "main"
       - name: install lib
         run: |
           sudo apt-get update
@@ -122,6 +126,6 @@ jobs:
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ env.GITHUB_TOKEN }}
-          branch: ${{ github.ref }}
+          branch: "main"
           force: true
 
