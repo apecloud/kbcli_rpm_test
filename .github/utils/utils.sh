@@ -82,9 +82,16 @@ make_rpm_repo() {
     sed -i 's/^Version:.*/Version: $TAG_NAME/' rpmbuild/SPECS/kbcli-$TAG_NAME.spec
     sed -i 's/^%setup.*/%setup -q -n $OS/' rpmbuild/SPECS/kbcli-$TAG_NAME.spec
     mv rpmbuild $ROOT_DIR/
-    rpmbuild --target ${{ matrix.os == 'linux-amd64' && 'x86_64' || 'aarch64' }} -ba $ROOT_DIR/rpmbuild/SPECS/kbcli-$TAG_NAME.spec
 
-    mv $ROOT_DIR/rpmbuild/RPMS/${{ matrix.os == 'linux-amd64' && 'x86_64' || 'aarch64' }}/$CLI_NAME-$TAG_NAME-1.${{ matrix.os == 'linux-amd64' && 'x86_64' || 'aarch64' }}.rpm ./
+    if [ "$OS" == "linux-amd64" ]; then
+        target_arch='x86_64'
+    else
+        target_arch='aarch64'
+    fi
+
+    rpmbuild --target $target_arch -ba $ROOT_DIR/rpmbuild/SPECS/kbcli-$TAG_NAME.spec
+
+    mv $ROOT_DIR/rpmbuild/RPMS/$target_arch/$CLI_NAME-$TAG_NAME-1.$target_arch.rpm ./
     createrepo_c --update ./
 }
 
