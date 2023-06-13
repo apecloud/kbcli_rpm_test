@@ -96,7 +96,6 @@ make_rpm_repo() {
 
     mv "$ROOT_DIR/rpmbuild/RPMS/$target_arch/$CLI_NAME-$TAG_NAME-1.$target_arch.rpm" ./
     createrepo_c --update ./
-
 }
 
 main "$@"
