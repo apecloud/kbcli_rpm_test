@@ -69,19 +69,22 @@ make_rpm_repo() {
     curl -O -L https://github.com/apecloud/kbcli/releases/download/$TAG_NAME/$CLI_NAME-$OS-$TAG_NAME.tar.gz
 
     CLI_FILENAME=$CLI_NAME-$OS-$TAG_NAME
+    echo "CLI_FILENAME: $CLI_FILENAME"
     mkdir -p rpmbuild
     mkdir -p rpmbuild/SOURCES
     mkdir -p rpmbuild/SPECS
     mkdir -p rpmbuild/BUILD
     mkdir -p rpmbuild/RPMS
     mkdir -p rpmbuild/SRPMS
-    mv $CLI_FILENAME.tar.gz rpmbuild/SOURCES/
-    cp $WORK_SPACE/.github/utils/kbcli.spec rpmbuild/SPECS/
+
+    mv "$CLI_FILENAME.tar.gz" rpmbuild/SOURCES/
+    cp "$WORK_SPACE/.github/utils/kbcli.spec" rpmbuild/SPECS/
     mv rpmbuild/SPECS/kbcli.spec rpmbuild/SPECS/kbcli-$TAG_NAME.spec
-    sed -i 's/^Source0:.*/Source0: $CLI_FILENAME.tar.gz/' rpmbuild/SPECS/kbcli-$TAG_NAME.spec
-    sed -i 's/^Version:.*/Version: $TAG_NAME/' rpmbuild/SPECS/kbcli-$TAG_NAME.spec
-    sed -i 's/^%setup.*/%setup -q -n $OS/' rpmbuild/SPECS/kbcli-$TAG_NAME.spec
-    mv rpmbuild $ROOT_DIR/
+    sed -i "s/^Source0:.*/Source0: $CLI_FILENAME.tar.gz/" rpmbuild/SPECS/kbcli-$TAG_NAME.spec
+    sed -i "s/^Version:.*/Version: $TAG_NAME/" rpmbuild/SPECS/kbcli-$TAG_NAME.spec
+    sed -i "s/^%setup.*/%setup -q -n $OS/" rpmbuild/SPECS/kbcli-$TAG_NAME.spec
+
+    mv rpmbuild "$ROOT_DIR/"
 
     if [ "$OS" == "linux-amd64" ]; then
         target_arch='x86_64'
@@ -89,10 +92,11 @@ make_rpm_repo() {
         target_arch='aarch64'
     fi
 
-    rpmbuild --target $target_arch -ba $ROOT_DIR/rpmbuild/SPECS/kbcli-$TAG_NAME.spec
+    rpmbuild --target "$target_arch" -ba "$ROOT_DIR/rpmbuild/SPECS/kbcli-$TAG_NAME.spec"
 
-    mv $ROOT_DIR/rpmbuild/RPMS/$target_arch/$CLI_NAME-$TAG_NAME-1.$target_arch.rpm ./
+    mv "$ROOT_DIR/rpmbuild/RPMS/$target_arch/$CLI_NAME-$TAG_NAME-1.$target_arch.rpm" ./
     createrepo_c --update ./
+
 }
 
 main "$@"
