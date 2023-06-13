@@ -13,7 +13,7 @@ on:
 env:
   GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
   CLI_NAME: "kbcli"
-  TAG_NAME: "v0.5.1"
+  TAG_NAME: "v0.5.0"
 
 jobs:
   release-yum-kbcli-amd:
@@ -57,7 +57,6 @@ jobs:
         run: |
           cd ${{ matrix.os }}
           cp /home/runner/rpmbuild/RPMS/${{ matrix.os == 'linux-amd64' && 'x86_64' || 'aarch64' }}/${{ env.CLI_NAME }}-${{ env.TAG_NAME }}-1.${{ matrix.os == 'linux-amd64' && 'x86_64' || 'aarch64' }}.rpm ./
-          createrepo_c -pdo ./ ./
           createrepo_c --update ./
 
           git config --local user.name "$GITHUB_ACTOR"
@@ -114,7 +113,6 @@ jobs:
         run: |
           cd ${{ matrix.os }}
           cp /home/runner/rpmbuild/RPMS/${{ matrix.os == 'linux-amd64' && 'x86_64' || 'aarch64' }}/${{ env.CLI_NAME }}-${{ env.TAG_NAME }}-1.${{ matrix.os == 'linux-amd64' && 'x86_64' || 'aarch64' }}.rpm ./
-          createrepo_c -pdo ./ ./
           createrepo_c --update ./
 
           git config --local user.name "$GITHUB_ACTOR"
