@@ -59,17 +59,21 @@ parse_command_line() {
 }
 
 make_rpm_repo() {
+    # Install dependencies
     sudo apt-get update
     sudo apt-get install -y --no-install-recommends \
       libbtrfs-dev \
       libdevmapper-dev
     sudo apt-get install -y rpm build-essential
     sudo apt-get install -y createrepo-c
-    cd $OS
+
+#    cd $OS
+    CLI_FILENAME=$CLI_NAME-$OS-$TAG_NAME
+
+    # Download kbcli
     curl -O -L https://github.com/apecloud/kbcli/releases/download/$TAG_NAME/$CLI_NAME-$OS-$TAG_NAME.tar.gz
 
-    CLI_FILENAME=$CLI_NAME-$OS-$TAG_NAME
-    echo "CLI_FILENAME: $CLI_FILENAME"
+    # Build rpm
     mkdir -p rpmbuild
     mkdir -p rpmbuild/SOURCES
     mkdir -p rpmbuild/SPECS
@@ -95,7 +99,13 @@ make_rpm_repo() {
     rpmbuild --target "$target_arch" -ba "$ROOT_DIR/rpmbuild/SPECS/kbcli-$TAG_NAME.spec"
 
     mv "$ROOT_DIR/rpmbuild/RPMS/$target_arch/$CLI_NAME-$TAG_NAME-1.$target_arch.rpm" ./
-    createrepo_c --update ./
+
+    # Create or update rpm repo
+    if [ ! -d "repodata" ]; then
+        createrepo -pdo ./ ./
+    else
+        createrepo_c --update ./
+    fi
 }
 
 main "$@"

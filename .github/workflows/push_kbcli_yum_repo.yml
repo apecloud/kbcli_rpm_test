@@ -1,10 +1,11 @@
-name: RELEASE-YUM-KBCLI-TAG
+name: RELEASE-YUM-KBCLI
 
 on:
+  push:
   workflow_dispatch:
     inputs:
       VERSION:
-        description: "The release version of kbcli"
+        description: "release kbcli yum repo "
         type: string
         required: true
         default: ''
@@ -27,41 +28,13 @@ jobs:
           ref: "main"
       - name: install lib
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            libbtrfs-dev \
-            libdevmapper-dev
-          sudo apt-get install -y rpm build-essential
-          sudo apt-get install -y createrepo-c
-          cd ${{ matrix.os }}
-          curl -O -L https://github.com/apecloud/kbcli/releases/download/${{ env.TAG_NAME }}/${{ env.CLI_NAME }}-${{ matrix.os }}-${{ env.TAG_NAME }}.tar.gz
-          echo "CLI_FILENAME=${{ env.CLI_NAME }}-${{ matrix.os }}-${{ env.TAG_NAME }}" >> $GITHUB_ENV
-
-      - name: make RPM package
-        if: matrix.os == 'linux-amd64' || matrix.os == 'linux-arm64'
-        run: |
-          cd ${{ matrix.os }}
-          mkdir -p rpmbuild
-          mkdir -p rpmbuild/SOURCES
-          mkdir -p rpmbuild/SPECS
-          mkdir -p rpmbuild/BUILD
-          mkdir -p rpmbuild/RPMS
-          mkdir -p rpmbuild/SRPMS
-          mv ${{ env.CLI_FILENAME }}.tar.gz rpmbuild/SOURCES/
-          cp ${{ github.workspace }}/.github/utils/kbcli.spec rpmbuild/SPECS/
-          mv rpmbuild/SPECS/kbcli.spec rpmbuild/SPECS/kbcli-${{ env.TAG_NAME }}.spec
-          sed -i 's/^Source0:.*/Source0: ${{ env.CLI_FILENAME }}.tar.gz/' rpmbuild/SPECS/kbcli-${{ env.TAG_NAME }}.spec
-          sed -i 's/^Version:.*/Version: ${{ env.TAG_NAME }}/' rpmbuild/SPECS/kbcli-${{ env.TAG_NAME }}.spec
-          sed -i 's/^%setup.*/%setup -q -n ${{ matrix.os }}/' rpmbuild/SPECS/kbcli-${{ env.TAG_NAME }}.spec
-          mv rpmbuild /home/runner/
-          rpmbuild --target ${{ matrix.os == 'linux-amd64' && 'x86_64' || 'aarch64' }} -ba /home/runner/rpmbuild/SPECS/kbcli-${{ env.TAG_NAME }}.spec
-
-      - name: build RPM repo
-        run: |
-          cd ${{ matrix.os }}
-          mv /home/runner/rpmbuild/RPMS/${{ matrix.os == 'linux-amd64' && 'x86_64' || 'aarch64' }}/${{ env.CLI_NAME }}-${{ env.TAG_NAME }}-1.${{ matrix.os == 'linux-amd64' && 'x86_64' || 'aarch64' }}.rpm ./
-          createrepo_c --update ./
-
+          bash ${{ github.workspace }}/.github/utils/utils.sh \
+                  --os ${{ matrix.os }} \
+                  --tag-name ${{ env.TAG_NAME }} \
+                  --cli-name ${{ env.CLI_NAME }} \
+                  --root-dir "/home/runner" \
+                  --work-space ${{ github.workspace }}
+  
           git config --local user.name "$GITHUB_ACTOR"
           git config --local user.email "$GITHUB_ACTOR@users.noreply.github.com"
           git add .
@@ -87,35 +60,12 @@ jobs:
           ref: "main"
       - name: install lib
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            libbtrfs-dev \
-            libdevmapper-dev
-          sudo apt-get install -y rpm build-essential
-          sudo apt-get install -y createrepo-c
-          cd ${{ matrix.os }}
-          curl -O -L https://github.com/apecloud/kbcli/releases/download/${{ env.TAG_NAME }}/${{ env.CLI_NAME }}-${{ matrix.os }}-${{ env.TAG_NAME }}.tar.gz
-          echo "CLI_FILENAME=${{ env.CLI_NAME }}-${{ matrix.os }}-${{ env.TAG_NAME }}" >> $GITHUB_ENV
-          ls
-
-      - name: make RPM package
-        if: matrix.os == 'linux-amd64' || matrix.os == 'linux-arm64'
-        run: |
-          cd ${{ matrix.os }}
-          mv ${{ env.CLI_FILENAME }}.tar.gz rpmbuild/SOURCES/
-          cp ${{ github.workspace }}/.github/utils/kbcli.spec rpmbuild/SPECS/
-          mv rpmbuild/SPECS/kbcli.spec rpmbuild/SPECS/kbcli-${{ env.TAG_NAME }}.spec
-          sed -i 's/^Source0:.*/Source0: ${{ env.CLI_FILENAME }}.tar.gz/' rpmbuild/SPECS/kbcli-${{ env.TAG_NAME }}.spec
-          sed -i 's/^Version:.*/Version: ${{ env.TAG_NAME }}/' rpmbuild/SPECS/kbcli-${{ env.TAG_NAME }}.spec
-          sed -i 's/^%setup.*/%setup -q -n ${{ matrix.os }}/' rpmbuild/SPECS/kbcli-${{ env.TAG_NAME }}.spec
-          mv rpmbuild /home/runner/
-          rpmbuild --target ${{ matrix.os == 'linux-amd64' && 'x86_64' || 'aarch64' }} -ba /home/runner/rpmbuild/SPECS/kbcli-${{ env.TAG_NAME }}.spec
-
-      - name: build RPM repo
-        run: |
-          cd ${{ matrix.os }}
-          mv /home/runner/rpmbuild/RPMS/${{ matrix.os == 'linux-amd64' && 'x86_64' || 'aarch64' }}/${{ env.CLI_NAME }}-${{ env.TAG_NAME }}-1.${{ matrix.os == 'linux-amd64' && 'x86_64' || 'aarch64' }}.rpm ./
-          createrepo_c --update ./
+          bash ${{ github.workspace }}/.github/utils/utils.sh \
+                  --os ${{ matrix.os }} \
+                  --tag-name ${{ env.TAG_NAME }} \
+                  --cli-name ${{ env.CLI_NAME }} \
+                  --root-dir "/home/runner" \
+                  --work-space ${{ github.workspace }}
 
           git config --local user.name "$GITHUB_ACTOR"
           git config --local user.email "$GITHUB_ACTOR@users.noreply.github.com"
